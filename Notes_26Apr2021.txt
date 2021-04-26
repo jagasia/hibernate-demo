@@ -1,0 +1,140 @@
+Hibernate:
+	Object Relational Mapping framework
+	Data layer
+	Model	(in MVC)
+		is any code that defines data or access data	
+		Entity class		defines the data	
+		DAO			access the data	like storing, retrieving
+
+	can be used in any type of project
+		console, web, mobile application
+
+	first we should learn to use hibernate in console application		(stand alone)	main method
+	
+1) configuration	xml file
+	named usually as
+		hibernate.cfg.xml	
+
+	this xml file contains the information required to connect with a database
+		Driver name
+		url
+		user name
+		password
+	these information are common for any queries we do run in the database. the query contains table name
+
+2) Entity classes
+	A java class that maps to table(s) is Entity class
+	last time, we used @Entity annotation and other annotations like @Id, @GeneratedValue, etc
+
+3) 	we are going to do the same using xml configuration file now, called as hbm file	(hibernate mapping)
+		engineer.hbm.xml		could be a meaningful name of this file
+
+	for each entity class, we required one hbm file	(this is alternative for annotation)
+
+ 
+4) in hibernate.cfg.xml file we need to declare the hbm file names. This is one method. other methods are also there
+
+5) we need to login to the database server. This is called as session.
+	session can be opened using session builder factory. session builder factory can be obtained from configuration
+
+6) using session, we can persist the objects or obtain the objects and even commit or rollback transactions.
+
+
+
+templates for :
+1) hibernate.cfg.xml
+2) engineer.hbm.xml
+
+
+open session itself is logging into the server. But we did not get error because, hibernate is smart. Only when changes are discovered, it will attempt to connect.
+
+
+
+1) when we supply other values but not for primary key (auto generate specified), it understands that we are adding a new row.
+2) but when we supply primary key value also, it understands that we try to update the existing record. 
+
+
+What is detached entity?
+	an object which is not sync with the db is a detached entity
+
+suppose, if we find an object from the db, it is sync with a row in the db. It is managed entity
+	
+
+1) for adding new objects to the db
+	persist	(	do not supply primary key for auto generated	)
+	save	(	returns the id generated	)
+2) for updation,
+	find the object and update the values and persist
+
+3) for deletion,
+	
+
+
+interface EngineerDao
+class EngineerDaoImpl implements EngineerDao
+
+
+-----------------------------------
+instead of using 
+	engineer.hbm.xml
+we are going to use annotations
+
+in hibernate.cfg.xml, WHEN WE USE HBM FILE, THE FOLLOWING ENTRY IS MADE
+	<mapping resource="engineer.hbm.xml" />
+
+BUT
+now that we are using annotations, it may become
+	<mapping class="model.Engineer" />
+
+
+
+Auto generation is possible only when the primary key is NUMERIC. For STring type primary key, auto generation is not possible by JPA frameworks. 
+
+
+only 2 changes:
+1) in hibernate.cfg.xml
+		<mapping class="model.Engineer" />
+2) used Annotations in entity class
+	@Entity
+	@Id
+	@GeneratedValue
+
+
+3) when i do not add that <mapping class in the hibernate.cfg.xml file,
+	i can add annotated class in the config.
+		config.addAnnotatedClass(Engineer.class);
+
+
+To access rest api from stand alone client:-
+---------------------------------------------
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class MyClient {
+    public static void main(String[] args) {
+        try {
+
+            URL url = new URL("http://localhost:8080/hello");//your url i.e fetch data from .
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "text/json");
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP Error code : "
+                        + conn.getResponseCode());
+            }
+            InputStreamReader in = new InputStreamReader(conn.getInputStream());
+            BufferedReader br = new BufferedReader(in);
+            String output;
+            while ((output = br.readLine()) != null) {
+                System.out.println(output);
+            }
+            conn.disconnect();
+
+        } catch (Exception e) {
+            System.out.println("Exception in NetClientGet:- " + e);
+        }
+    }
+}
